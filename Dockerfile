@@ -20,22 +20,22 @@ FROM oven/bun:1-alpine AS runtime
 
 WORKDIR /app
 
-# Crear usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S bun -u 1001
+# Crear usuario no-root para seguridad (o usar el existente)
+RUN addgroup -g 1001 -S nodejs 2>/dev/null || true && \
+    adduser -S komikai -u 1001 2>/dev/null || adduser -S komikai
 
 # Copiar dependencias desde builder
-COPY --from=builder --chown=bun:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=komikai:nodejs /app/node_modules ./node_modules
 
 # Copiar código fuente y assets compilados
-COPY --from=builder --chown=bun:nodejs /app/src ./src
-COPY --from=builder --chown=bun:nodejs /app/public ./public
-COPY --from=builder --chown=bun:nodejs /app/data ./data
-COPY --from=builder --chown=bun:nodejs /app/package.json ./
-COPY --from=builder --chown=bun:nodejs /app/tsconfig.json ./
+COPY --from=builder --chown=komikai:nodejs /app/src ./src
+COPY --from=builder --chown=komikai:nodejs /app/public ./public
+COPY --from=builder --chown=komikai:nodejs /app/data ./data
+COPY --from=builder --chown=komikai:nodejs /app/package.json ./
+COPY --from=builder --chown=komikai:nodejs /app/tsconfig.json ./
 
 # Cambiar a usuario no-root
-USER bun
+USER komikai
 
 # Exponer puerto
 EXPOSE 3000
