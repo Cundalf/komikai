@@ -1,0 +1,32 @@
+{
+  "name": "komikai",
+  "version": "2.0.0",
+  "description": "KomiKAI - Traductor de manga y manhwa con IA",
+  "module": "src/server.ts",
+  "scripts": {
+    "dev": "bun --hot src/server.ts",
+    "build": "bun run build:client && bun run build:styles",
+    "build:client": "bun build src/client-minimal.ts --outfile public/client.js --target browser --minify",
+    "build:styles": "bunx sass src/styles.scss public/styles.css --style=compressed",
+    "start": "bun run src/server.ts",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf public/client.js public/styles.css"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/nodemailer": "^6.4.14",
+    "sass": "^1.69.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "nodemailer": "^7.0.6",
+    "openai": "^5.23.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

@@ -1,0 +1,831 @@
+// ===================================
+// KomiKAI Design System - SCSS
+// ===================================
+
+// Variables del sistema de diseño
+$colors: (
+    primary: #4fa3ff,
+    secondary: #ff8fab,
+    accent: #ffd93d,
+    neutral: #2e2e2e,
+    background: #ffffff,
+    surface: #f7f7f7,
+    text-muted: #666,
+    text-placeholder: #999
+);
+
+$typography: (
+    font-primary: "Poppins, sans-serif",
+    font-body: "Inter, sans-serif"
+);
+
+$spacing: (
+    xs: 0.25rem,
+    sm: 0.5rem,
+    md: 1rem,
+    lg: 1.5rem,
+    xl: 2rem,
+    2xl: 3rem
+);
+
+$radius: (
+    sm: 0.5rem,
+    md: 1rem,
+    lg: 1.5rem,
+    full: 9999px
+);
+
+$shadows: (
+    sm: 0 2px 4px rgba(0, 0, 0, 0.1),
+    md: 0 8px 16px rgba(0, 0, 0, 0.05),
+    lg: 0 12px 24px rgba(0, 0, 0, 0.08),
+    xl: 0 20px 40px rgba(0, 0, 0, 0.12)
+);
+
+$transitions: (
+    fast: 0.15s ease,
+    normal: 0.2s ease,
+    slow: 0.3s ease
+);
+
+// Importar funciones de Sass
+@use "sass:map";
+
+// Funciones helper
+@function color($name) {
+    @return map.get($colors, $name);
+}
+
+@function spacing($size) {
+    @return map.get($spacing, $size);
+}
+
+@function radius($size) {
+    @return map.get($radius, $size);
+}
+
+@function shadow($size) {
+    @return map.get($shadows, $size);
+}
+
+@function transition($speed) {
+    @return map.get($transitions, $speed);
+}
+
+// Mixins útiles
+@mixin button-hover-effect {
+    transform: translateY(-2px);
+    box-shadow: shadow(md);
+}
+
+@mixin card-hover-effect {
+    transform: translateY(-4px);
+    box-shadow: shadow(lg);
+}
+
+@mixin mobile-only {
+    @media (max-width: 767px) {
+        @content;
+    }
+}
+
+@mixin tablet-up {
+    @media (min-width: 768px) {
+        @content;
+    }
+}
+
+@mixin small-mobile {
+    @media (max-width: 480px) {
+        @content;
+    }
+}
+
+// Variables CSS para compatibilidad con PicoCSS
+:root {
+    // Design System Colors
+    --color-primary: #{color(primary)};
+    --color-secondary: #{color(secondary)};
+    --color-accent: #{color(accent)};
+    --color-neutral: #{color(neutral)};
+    --color-background: #{color(background)};
+    --color-surface: #{color(surface)};
+
+    // Typography
+    --font-primary: #{map.get($typography, font-primary)};
+    --font-body: #{map.get($typography, font-body)};
+
+    // Spacing
+    --spacing-xs: #{spacing(xs)};
+    --spacing-sm: #{spacing(sm)};
+    --spacing-md: #{spacing(md)};
+    --spacing-lg: #{spacing(lg)};
+    --spacing-xl: #{spacing(xl)};
+    --spacing-2xl: #{spacing(2xl)};
+
+    // Border Radius
+    --radius-sm: #{radius(sm)};
+    --radius-md: #{radius(md)};
+    --radius-lg: #{radius(lg)};
+    --radius-full: #{radius(full)};
+
+    // Shadows
+    --shadow-sm: #{shadow(sm)};
+    --shadow-md: #{shadow(md)};
+    --shadow-lg: #{shadow(lg)};
+    --shadow-xl: #{shadow(xl)};
+
+    // Transitions
+    --transition-fast: #{transition(fast)};
+    --transition-normal: #{transition(normal)};
+    --transition-slow: #{transition(slow)};
+
+    // PicoCSS Color Override
+    --primary: var(--color-primary);
+    --primary-hover: #3b82f6;
+    --primary-focus: rgba(79, 163, 255, 0.25);
+    --primary-inverse: var(--color-background);
+
+    --secondary: var(--color-secondary);
+    --secondary-hover: #ff6f91;
+    --secondary-focus: rgba(255, 143, 171, 0.25);
+    --secondary-inverse: var(--color-background);
+
+    --contrast: var(--color-neutral);
+    --contrast-hover: #1a1a1a;
+    --contrast-focus: rgba(46, 46, 46, 0.25);
+    --contrast-inverse: var(--color-background);
+
+    --mark-background-color: var(--color-accent);
+    --mark-color: var(--color-neutral);
+
+    --ins-color: #2d5016;
+    --del-color: #b71c1c;
+
+    --blockquote-border-color: var(--color-primary);
+    --blockquote-footer-color: var(--color-neutral);
+
+    --button-box-shadow: var(--shadow-sm);
+    --button-hover-box-shadow: var(--shadow-md);
+
+    --form-element-background-color: var(--color-background);
+    --form-element-border-color: rgba(79, 163, 255, 0.2);
+    --form-element-color: var(--color-neutral);
+    --form-element-placeholder-color: #{color(text-placeholder)};
+    --form-element-active-border-color: var(--color-primary);
+    --form-element-focus-color: var(--color-primary);
+    --form-element-disabled-background-color: var(--color-surface);
+    --form-element-disabled-border-color: rgba(79, 163, 255, 0.1);
+    --form-element-disabled-color: #{color(text-placeholder)};
+    --form-element-invalid-border-color: var(--color-secondary);
+    --form-element-invalid-active-border-color: var(--color-secondary);
+    --form-element-invalid-focus-color: var(--color-secondary);
+    --form-element-valid-border-color: #2d5016;
+    --form-element-valid-active-border-color: #2d5016;
+    --form-element-valid-focus-color: #2d5016;
+}
+
+// Base styles
+body {
+    font-family: var(--font-body);
+    background: color(background);
+    color: color(neutral);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+// Typography
+%heading-base {
+    font-family: var(--font-primary);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+h1 {
+    @extend %heading-base;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+h2 {
+    @extend %heading-base;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+h3 {
+    @extend %heading-base;
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+// Links - Override PicoCSS underlines
+a,
+a:link,
+a:visited,
+a:hover,
+a:focus,
+a:active {
+    text-decoration: none !important;
+}
+
+// Specific overrides for PicoCSS link styles
+:where(a:not([role="button"])) {
+    text-decoration: none !important;
+
+    &:hover {
+        text-decoration: none !important;
+    }
+
+    &:focus {
+        text-decoration: none !important;
+    }
+}
+
+// Additional specificity for nested elements
+p a,
+div a,
+section a,
+article a {
+    text-decoration: none !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        text-decoration: none !important;
+    }
+}
+
+// Hero section
+.hero {
+    background: linear-gradient(135deg, rgba(79, 163, 255, 0.95), rgba(255, 143, 171, 0.9));
+    color: color(background);
+    padding-bottom: spacing(xl);
+    position: relative;
+    min-height: 40vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+
+    nav strong {
+        font-size: 1.75rem;
+        font-family: var(--font-primary);
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+
+    .tag {
+        background: rgba(255, 217, 61, 0.2);
+        color: color(background);
+        padding: spacing(xs) spacing(sm);
+        border-radius: radius(full);
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    @include tablet-up {
+        min-height: 50vh;
+    }
+
+    @include mobile-only {
+        min-height: 30vh;
+        padding-bottom: spacing(lg);
+    }
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 680px;
+    margin: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h1 {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        margin-bottom: spacing(md);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    p {
+        font-size: clamp(1rem, 2.5vw, 1.125rem);
+        opacity: 0.95;
+        color: color(surface);
+        text-shadow: color(neutral) 0px 0 4px;
+    }
+
+    @include mobile-only {
+        text-align: left;
+        padding: 0 spacing(md);
+    }
+}
+
+// Hero section when user is logged in
+.hero.logged-in {
+    min-height: 25vh !important;
+    padding-bottom: spacing(sm) !important;
+
+    .hero-content {
+        min-height: auto !important;
+        padding: spacing(sm) 0 !important;
+        display: block !important;
+
+        h1 {
+            font-size: clamp(1.5rem, 3vw, 2rem) !important;
+            margin: 0 !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            font-weight: 600 !important;
+        }
+    }
+
+    @include tablet-up {
+        min-height: 25vh !important;
+    }
+
+    @include mobile-only {
+        min-height: 20vh !important;
+        padding-bottom: spacing(xs) !important;
+
+        .hero-content {
+            padding: spacing(xs) 0 !important;
+
+            h1 {
+                font-size: clamp(1.25rem, 4vw, 1.75rem) !important;
+            }
+        }
+    }
+}
+
+// Panel component
+.panel {
+    background: color(background);
+    padding: spacing(2xl);
+    border-radius: radius(lg);
+    box-shadow: shadow(lg);
+    margin-top: -3rem;
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(79, 163, 255, 0.1);
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: spacing(lg);
+        color: color(neutral);
+    }
+
+    p {
+        margin-bottom: spacing(lg);
+        color: color(text-muted);
+    }
+
+    form {
+        display: grid;
+    }
+
+    button {
+        background-color: color(primary);
+        color: color(background);
+        border: none;
+        padding: spacing(md) spacing(xl);
+        border-radius: radius(full);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all transition(normal);
+        box-shadow: shadow(sm);
+
+        &:hover {
+            background-color: #3b82f6;
+            @include button-hover-effect;
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+
+    @include tablet-up {
+        margin-top: -4rem;
+    }
+
+    @include mobile-only {
+        margin-top: -2rem;
+        padding: spacing(md);
+        border-radius: radius(md);
+    }
+}
+
+// File upload component
+.file-label {
+    display: block;
+    border: 2px dashed rgba(79, 163, 255, 0.4);
+    border-radius: radius(md);
+    padding: spacing(2xl);
+    text-align: center;
+    cursor: pointer;
+    background: rgba(79, 163, 255, 0.05);
+    transition: all transition(normal);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: "📁";
+        font-size: 2rem;
+        display: block;
+        margin-bottom: spacing(md);
+    }
+
+    &:hover {
+        border-color: color(primary);
+        background: rgba(79, 163, 255, 0.1);
+        transform: translateY(-2px);
+        box-shadow: shadow(md);
+    }
+
+    input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+    }
+
+    span {
+        font-weight: 600;
+        color: color(primary);
+    }
+
+    @include small-mobile {
+        padding: spacing(lg);
+    }
+}
+
+// Status messages
+.status {
+    min-height: 1.5rem;
+    color: color(secondary);
+    font-weight: 600;
+    text-align: center;
+    padding: spacing(sm);
+    border-radius: radius(sm);
+    background: rgba(255, 143, 171, 0.1);
+    margin-top: spacing(md);
+    margin-bottom: spacing(md);
+
+    &.success {
+        background: rgba(79, 163, 255, 0.1) !important;
+        border: 1px solid rgba(79, 163, 255, 0.2) !important;
+        color: color(primary) !important;
+    }
+
+    &.error {
+        background: rgba(255, 143, 171, 0.1) !important;
+        border: 1px solid rgba(255, 143, 171, 0.2) !important;
+        color: color(secondary) !important;
+    }
+}
+
+// Results section
+.results-grid {
+    display: grid;
+    gap: spacing(xl);
+    margin-top: spacing(2xl);
+}
+
+.bubble-card {
+    background: color(background);
+    border-radius: radius(md);
+    box-shadow: shadow(md);
+    padding: spacing(xl);
+    border-left: 6px solid color(primary);
+    transition: all transition(normal);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: "💬";
+        position: absolute;
+        top: spacing(md);
+        right: spacing(md);
+        font-size: 1.5rem;
+        opacity: 0.3;
+    }
+
+    &:hover {
+        @include card-hover-effect;
+    }
+
+    h3,
+    h4 {
+        margin-top: 0;
+        margin-bottom: spacing(lg);
+        color: color(primary);
+        display: flex;
+        align-items: center;
+        gap: spacing(sm);
+    }
+
+    @include mobile-only {
+        padding: spacing(lg);
+    }
+}
+
+.translation-grid {
+    display: grid;
+    gap: spacing(lg);
+    margin-top: spacing(lg);
+
+    @include tablet-up {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @include mobile-only {
+        grid-template-columns: 1fr;
+    }
+}
+
+.translation-item {
+    position: relative;
+    padding: spacing(lg);
+    border-radius: radius(sm);
+    background: color(surface);
+    border: 1px solid rgba(79, 163, 255, 0.2);
+    transition: all transition(normal);
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: shadow(sm);
+        border-color: color(primary);
+
+        .copy-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    strong {
+        display: block;
+        margin-bottom: spacing(sm);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: color(neutral);
+        font-weight: 600;
+    }
+
+    p {
+        margin: 0;
+        line-height: 1.5;
+        color: color(neutral);
+        font-size: 0.95rem;
+    }
+
+    @include mobile-only {
+        padding: spacing(md);
+    }
+}
+
+.copy-btn {
+    position: absolute;
+    top: spacing(sm);
+    right: spacing(sm);
+    opacity: 0;
+    background: color(accent);
+    color: color(neutral);
+    border-radius: radius(full);
+    border: none;
+    padding: spacing(xs) spacing(sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: spacing(xs);
+    transition: all transition(normal);
+    cursor: pointer;
+    box-shadow: shadow(sm);
+    transform: scale(0.9);
+
+    &:hover {
+        background: #e6c200;
+        transform: scale(1);
+        box-shadow: shadow(md);
+    }
+
+    @include mobile-only {
+        position: static;
+        opacity: 1;
+        margin-top: spacing(sm);
+        width: 100%;
+        justify-content: center;
+        transform: none;
+    }
+}
+
+// PicoCSS Component Overrides
+%button-base {
+    background-color: color(primary) !important;
+    color: color(background) !important;
+    border-color: color(primary) !important;
+    transition: all transition(normal) !important;
+
+    &:hover {
+        background-color: var(--primary-hover) !important;
+        border-color: var(--primary-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: shadow(md) !important;
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
+    @extend %button-base;
+
+    &.secondary {
+        background-color: color(secondary) !important;
+        border-color: color(secondary) !important;
+
+        &:hover {
+            background-color: var(--secondary-hover) !important;
+            border-color: var(--secondary-hover) !important;
+        }
+    }
+
+    &.outline {
+        background-color: transparent !important;
+        color: color(primary) !important;
+        border-color: color(primary) !important;
+
+        &:hover {
+            background-color: color(primary) !important;
+            color: color(background) !important;
+        }
+    }
+}
+
+%input-base {
+    background-color: color(background) !important;
+    border-color: rgba(79, 163, 255, 0.2) !important;
+    color: color(neutral) !important;
+    transition: all transition(normal) !important;
+    margin-top: 0.25rem !important;
+
+    &:focus {
+        border-color: color(primary) !important;
+        box-shadow: 0 0 0 3px var(--primary-focus) !important;
+    }
+
+    &:invalid {
+        border-color: color(secondary) !important;
+    }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+textarea,
+select {
+    @extend %input-base;
+}
+
+label {
+    margin-bottom: 0.25rem !important;
+    font-weight: 600 !important;
+    color: color(neutral) !important;
+}
+
+.tag {
+    background-color: color(secondary) !important;
+    color: color(background) !important;
+    border-radius: radius(full) !important;
+    padding: spacing(sm) spacing(md) !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+}
+
+// Navbar styling
+nav ul li strong {
+    color: color(background) !important;
+    font-family: var(--font-primary) !important;
+    font-weight: 700 !important;
+}
+
+nav ul {
+    display: flex !important;
+    align-items: center !important;
+    gap: spacing(sm) !important;
+    margin: 0 !important;
+
+    li {
+        display: flex !important;
+        align-items: center !important;
+    }
+}
+
+// Logout button styling - same style as tags
+.logout-btn {
+    background-color: color(secondary) !important;
+    border-color: color(secondary) !important;
+    color: color(background) !important;
+    border-radius: radius(full) !important;
+    padding: spacing(sm) spacing(md) !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    margin-bottom: 0 !important;
+    transition: all transition(normal) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+
+    &:hover, &:focus {
+        background: rgba(255, 80, 80, 1) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3) !important;
+        border-color: color(secondary) !important;
+    }
+
+    &:active {
+        transform: translateY(0) !important;
+    }
+}
+
+// Spinner component
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: spacing(xs);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Button loading state
+button:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    
+    &:hover {
+        transform: none !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+}
+
+@include mobile-only {
+    .tag-optional {
+        display: none !important;
+    }
+}
+
+// Responsive navigation
+@include small-mobile {
+    .hero {
+    
+        &nav {
+            gap: 0 !important;
+            text-align: center;
+
+            strong {
+                font-size: 1.5rem !important;
+            }
+
+            ul {
+                justify-content: center;
+            }
+        }
+
+        &.logged-in {
+            .hero-content {
+                h1 {
+                    text-align: center !important;
+                }
+            }
+        }
+    }
+
+    .tag-optional {
+        display: none !important;
+    }
+}

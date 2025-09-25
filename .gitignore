@@ -1,0 +1,56 @@
+# dependencies (bun install)
+node_modules
+bun.lock
+
+# output
+out
+dist
+*.tgz
+
+# built assets
+public/client.js
+public/styles.css
+public/styles.css.map
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+.npm
+.yarn-integrity
+
+# project data files
+data
+
+# Docker
+.dockerignore
+
+# IDEs
+.idea
+.vscode
+*.swp
+*.swo
+.cursor
+
+# OS files
+.DS_Store
+Thumbs.db
