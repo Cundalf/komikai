@@ -829,3 +829,121 @@ button:disabled {
         display: none !important;
     }
 }
+
+// ===================================
+// New detailed results styles
+// ===================================
+
+// Results header with analysis info
+.results-header {
+    margin-bottom: spacing(xl);
+    text-align: center;
+
+    h3 {
+        margin-bottom: spacing(md);
+        color: color(primary);
+        font-size: 1.5rem;
+    }
+}
+
+.analysis-info {
+    display: flex;
+    justify-content: center;
+    gap: spacing(lg);
+    flex-wrap: wrap;
+    margin-bottom: spacing(lg);
+
+    @include mobile-only {
+        flex-direction: column;
+        gap: spacing(sm);
+    }
+}
+
+.info-item {
+    background: color(surface);
+    padding: spacing(sm) spacing(md);
+    border-radius: radius(full);
+    border: 1px solid rgba(79, 163, 255, 0.2);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: color(neutral);
+    transition: all transition(normal);
+
+    &:hover {
+        border-color: color(primary);
+        background: rgba(79, 163, 255, 0.05);
+    }
+}
+
+// Element cards (similar to bubble cards but enhanced)
+.element-card {
+    background: color(background);
+    border-radius: radius(md);
+    box-shadow: shadow(md);
+    padding: spacing(xl);
+    border-left: 6px solid color(primary);
+    transition: all transition(normal);
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        @include card-hover-effect;
+    }
+
+    @include mobile-only {
+        padding: spacing(lg);
+    }
+}
+
+.element-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: spacing(lg);
+    gap: spacing(md);
+
+    h4 {
+        margin: 0;
+        color: color(primary);
+        font-size: 1.125rem;
+        display: flex;
+        align-items: center;
+        gap: spacing(sm);
+        flex: 1;
+    }
+
+    @include mobile-only {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: spacing(sm);
+    }
+}
+
+.location-tag {
+    background: linear-gradient(135deg, rgba(255, 217, 61, 0.2), rgba(255, 217, 61, 0.1));
+    color: color(neutral);
+    padding: spacing(xs) spacing(sm);
+    border-radius: radius(sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 217, 61, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+
+    @include mobile-only {
+        max-width: 100%;
+    }
+}
+
+.element-notes {
+    margin-top: spacing(md);
+    background: rgba(79, 163, 255, 0.05);
+    border: 1px solid rgba(79, 163, 255, 0.2);
+    border-radius: radius(sm);
+    padding: spacing(sm) spacing(md);
+    font-size: 0.875rem;
+    color: color(neutral);
+    font-style: italic;
+}

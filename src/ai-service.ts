@@ -5,6 +5,16 @@
 
 import OpenAI from "openai";
 
+export interface TextElement {
+  id: number;
+  original: string;
+  english: string;
+  spanish: string;
+  type: 'dialogue' | 'thought' | 'narration' | 'title' | 'sound_effect' | 'onomatopoeia' | 'other';
+  location: string;
+  notes?: string;
+}
+
 export interface BubbleTranslation {
   original: string;
   english: string;
@@ -13,6 +23,9 @@ export interface BubbleTranslation {
 }
 
 export interface ProcessImageResult {
+  language_detected: 'japanese' | 'korean';
+  total_elements: number;
+  text_elements: TextElement[];
   bubbles: BubbleTranslation[];
 }
 
@@ -27,7 +40,7 @@ export class AIService {
     }
     
     this.openai = new OpenAI({ apiKey });
-    this.model = Bun.env.OPENAI_MODEL ?? "gpt-4o-mini";
+    this.model = "o4-mini";
   }
 
   /**
@@ -70,9 +83,13 @@ export class AIService {
       }
 
       const parsed = this.parseResponse(content);
-      const validBubbles = this.validateAndFilterBubbles(parsed.bubbles || []);
-      
+      const validTextElements = this.validateAndFilterTextElements(parsed.text_elements || []);
+      const validBubbles = this.convertTextElementsToBubbles(validTextElements, parsed.language_detected || 'japanese');
+
       return {
+        language_detected: parsed.language_detected || 'japanese',
+        total_elements: parsed.total_elements || validTextElements.length,
+        text_elements: validTextElements,
         bubbles: validBubbles
       };
       
@@ -146,13 +163,14 @@ Instrucciones especiales que debes respetar:
 - No generas traducciones de traducciones cuando el texto son solo caracteres especiales o cualquier onomatopeya, por ejemplo: "?", "!", "!!", "¿?".
 - Ignora los números de pagina.
 - NO traduzcas cosas de otros idiomas que no sean Japonés o Coreano.
+- La ubicacion y las notas que realices, deben ser en español.
     `;
   }
 
   /**
    * Parsea la respuesta JSON de OpenAI
    */
-  private parseResponse(content: string): { bubbles?: BubbleTranslation[] } {
+  private parseResponse(content: string): { language_detected?: 'japanese' | 'korean'; total_elements?: number; text_elements?: any[]; bubbles?: BubbleTranslation[] } {
     try {
       return JSON.parse(content);
     } catch (error) {
@@ -160,6 +178,49 @@ Instrucciones especiales que debes respetar:
       console.error("Contenido recibido:", content);
       throw new Error("Formato de respuesta inválido");
     }
+  }
+
+  /**
+   * Valida y filtra los elementos de texto para asegurar que tengan contenido válido
+   */
+  private validateAndFilterTextElements(textElements: any[]): TextElement[] {
+    return textElements
+      .filter((element): element is TextElement => {
+        return (
+          typeof element === 'object' &&
+          element !== null &&
+          typeof element.id === 'number' &&
+          typeof element.original === 'string' &&
+          typeof element.english === 'string' &&
+          typeof element.spanish === 'string' &&
+          typeof element.type === 'string' &&
+          typeof element.location === 'string' &&
+          element.original.trim().length > 0 &&
+          element.english.trim().length > 0 &&
+          element.spanish.trim().length > 0
+        );
+      })
+      .map(element => ({
+        id: element.id,
+        original: element.original.trim(),
+        english: element.english.trim(),
+        spanish: element.spanish.trim(),
+        type: element.type as 'dialogue' | 'thought' | 'narration' | 'title' | 'sound_effect' | 'onomatopoeia' | 'other',
+        location: element.location.trim(),
+        notes: element.notes ? element.notes.trim() : undefined
+      }));
+  }
+
+  /**
+   * Convierte elementos de texto a formato de burbujas para retrocompatibilidad
+   */
+  private convertTextElementsToBubbles(textElements: TextElement[], language: 'japanese' | 'korean'): BubbleTranslation[] {
+    return textElements.map(element => ({
+      original: element.original,
+      english: element.english,
+      spanish: element.spanish,
+      language: language
+    }));
   }
 
   /**

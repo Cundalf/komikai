@@ -21,6 +21,25 @@ const tokenSecret = Bun.env.SESSION_SECRET ?? "dev-secret";
 
 // Store temporal para resultados de procesamiento
 interface ProcessingResult {
+  result?: {
+    language_detected: 'japanese' | 'korean';
+    total_elements: number;
+    text_elements: Array<{
+      id: number;
+      original: string;
+      english: string;
+      spanish: string;
+      type: 'dialogue' | 'thought' | 'narration' | 'title' | 'sound_effect' | 'onomatopoeia' | 'other';
+      location: string;
+      notes?: string;
+    }>;
+    bubbles: Array<{
+      original: string;
+      english: string;
+      spanish: string;
+      language: 'japanese' | 'korean';
+    }>;
+  };
   bubbles: Array<{
     original: string;
     english: string;
@@ -393,15 +412,20 @@ function handleDashboard(request: Request): Response {
   let bubbles: Array<{original: string; english: string; spanish: string; language: 'japanese' | 'korean'}> | undefined;
   let resultSuccess: string | undefined;
   
+  let fullResult: any = undefined;
+
   // Si hay un resultId, intentar obtener los resultados
   if (resultId) {
     const result = getProcessingResult(resultId, session.email);
     if (result) {
       bubbles = result.bubbles;
-      resultSuccess = `¡Listo! Encontramos ${result.bubbles.length} globos de diálogo`;
+      fullResult = result.result;
+      resultSuccess = fullResult
+        ? `¡Listo! Encontramos ${fullResult.total_elements} elementos de texto`
+        : `¡Listo! Encontramos ${result.bubbles.length} globos de diálogo`;
     }
   }
-  
+
   const templateData: TemplateData = {
     user: {
       email: session.email,
@@ -410,6 +434,7 @@ function handleDashboard(request: Request): Response {
     },
     error: error ?? undefined,
     success: success ?? resultSuccess ?? undefined,
+    result: fullResult,
     bubbles: bubbles
   };
   
@@ -457,7 +482,7 @@ async function handleProcessImage(request: Request): Promise<Response> {
     const arrayBuffer = await file.arrayBuffer();
     const result = await aiService.processImage(arrayBuffer, session.email);
     
-    console.log(`✅ Procesado para ${session.email}: ${result.bubbles.length} globos encontrados`);
+    console.log(`✅ Procesado para ${session.email}: ${result.total_elements} elementos encontrados (${result.text_elements.length} elementos de texto)`);
     
     if (result.bubbles.length === 0) {
       return redirect("/?success=" + encodeURIComponent("No se encontraron globos de diálogo en la imagen"));
@@ -466,6 +491,7 @@ async function handleProcessImage(request: Request): Promise<Response> {
     // Guardar resultados en sesión temporal (en memoria)
     const resultId = generateResultId();
     storeProcessingResult(resultId, {
+      result: result,
       bubbles: result.bubbles,
       email: session.email,
       timestamp: Date.now()

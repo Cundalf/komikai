@@ -12,6 +12,25 @@ export interface TemplateData {
   };
   error?: string | null;
   success?: string | null;
+  result?: {
+    language_detected: 'japanese' | 'korean';
+    total_elements: number;
+    text_elements: Array<{
+      id: number;
+      original: string;
+      english: string;
+      spanish: string;
+      type: 'dialogue' | 'thought' | 'narration' | 'title' | 'sound_effect' | 'onomatopoeia' | 'other';
+      location: string;
+      notes?: string;
+    }>;
+    bubbles: Array<{
+      original: string;
+      english: string;
+      spanish: string;
+      language: 'japanese' | 'korean';
+    }>;
+  };
   bubbles?: Array<{
     original: string;
     english: string;
@@ -134,20 +153,20 @@ export function renderVerifyCode(email: string, data: TemplateData = {}): string
 }
 
 export function renderDashboard(data: TemplateData): string {
-  const { user, error, success, bubbles } = data;
-  
+  const { user, error, success, result, bubbles } = data;
+
   if (!user) {
     throw new Error("Usuario requerido para el dashboard");
   }
-  
+
   const content = `
     <section class="panel">
       <h2>📖 Sube tu página de manga o manhwa</h2>
       <p>🤖 Analizamos automáticamente cada globo, detectamos el idioma (japonés/coreano) y te damos traducciones al inglés estadounidense y español latino.</p>
-      
+
       ${error ? `<div class="status error">❌ ${error}</div>` : ''}
       ${success ? `<div class="status success">✅ ${success}</div>` : ''}
-      
+
       <form id="uploadForm" method="POST" action="/process" enctype="multipart/form-data">
         <label class="file-label" for="imageInput">
           <span>📁 Selecciona una imagen (PNG/JPG/SVG)</span>
@@ -156,11 +175,64 @@ export function renderDashboard(data: TemplateData): string {
         <button type="submit">🔍 Analizar manga</button>
       </form>
     </section>
-    
-    ${bubbles && bubbles.length > 0 ? renderResults(bubbles) : ''}
+
+    ${result ? renderDetailedResults(result) : bubbles && bubbles.length > 0 ? renderResults(bubbles) : ''}
   `;
-  
+
   return renderLayout(content, { ...data, title: `KomiKAI - ${user.name}` });
+}
+
+function renderDetailedResults(result: { language_detected: 'japanese' | 'korean'; total_elements: number; text_elements: Array<{ id: number; original: string; english: string; spanish: string; type: string; location: string; notes?: string }> }): string {
+  const languageFlag = result.language_detected === 'japanese' ? '🇯🇵' : '🇰🇷';
+  const languageName = result.language_detected === 'japanese' ? 'Japonés' : 'Coreano';
+  const contentType = result.language_detected === 'japanese' ? 'Manga' : 'Manhwa';
+
+  return `
+    <section class="results-grid">
+      <div class="results-header">
+        <h3>✅ ¡Análisis completo!</h3>
+        <div class="analysis-info">
+          <span class="info-item">${languageFlag} Idioma: ${languageName}</span>
+          <span class="info-item">📊 Total elementos: ${result.total_elements}</span>
+          <span class="info-item">📖 Tipo: ${contentType}</span>
+        </div>
+      </div>
+
+      ${result.text_elements.map((element, index) => {
+        const typeEmoji = getTypeEmoji(element.type);
+        const typeLabel = getTypeLabel(element.type);
+
+        return `
+        <article class="element-card">
+          <div class="element-header">
+            <h4>${typeEmoji} ${typeLabel} #${element.id}</h4>
+            <span class="location-tag">📍 ${escapeHtml(element.location)}</span>
+          </div>
+
+          <div class="translation-grid">
+            <div class="translation-item">
+              <strong>${languageFlag} ${languageName}</strong>
+              <p>${escapeHtml(element.original)}</p>
+              <button type="button" class="copy-btn" data-text="${escapeHtml(element.original)}">📋</button>
+            </div>
+            <div class="translation-item">
+              <strong>🇺🇸 Inglés</strong>
+              <p>${escapeHtml(element.english)}</p>
+              <button type="button" class="copy-btn" data-text="${escapeHtml(element.english)}">📋</button>
+            </div>
+            <div class="translation-item">
+              <strong>🇪🇸 Español</strong>
+              <p>${escapeHtml(element.spanish)}</p>
+              <button type="button" class="copy-btn" data-text="${escapeHtml(element.spanish)}">📋</button>
+            </div>
+          </div>
+
+          ${element.notes ? `<div class="element-notes">💡 ${escapeHtml(element.notes)}</div>` : ''}
+        </article>
+        `;
+      }).join('')}
+    </section>
+  `;
 }
 
 function renderResults(bubbles: Array<{ original: string; english: string; spanish: string; language: 'japanese' | 'korean' }>): string {
@@ -194,6 +266,32 @@ function renderResults(bubbles: Array<{ original: string; english: string; spani
       }).join('')}
     </section>
   `;
+}
+
+function getTypeEmoji(type: string): string {
+  const emojiMap: Record<string, string> = {
+    dialogue: '💬',
+    thought: '💭',
+    narration: '📝',
+    title: '📚',
+    sound_effect: '🔊',
+    onomatopoeia: '💥',
+    other: '❓'
+  };
+  return emojiMap[type] || '❓';
+}
+
+function getTypeLabel(type: string): string {
+  const labelMap: Record<string, string> = {
+    dialogue: 'Diálogo',
+    thought: 'Pensamiento',
+    narration: 'Narración',
+    title: 'Título',
+    sound_effect: 'Efecto de sonido',
+    onomatopoeia: 'Onomatopeya',
+    other: 'Otro'
+  };
+  return labelMap[type] || 'Otro';
 }
 
 function formatSessionTime(expiresIn?: number): string {
