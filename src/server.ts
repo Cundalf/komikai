@@ -77,7 +77,7 @@ interface SessionPayload {
 function createSession(email: string, name?: string): string {
   const now = Math.floor(Date.now() / 1000);
   const customName = getUserName(email);
-  const sessionName = name ?? customName ?? email.split('@')[0];
+  const sessionName = name ?? customName ?? email.split('@')[0] ?? 'Usuario';
   const payload: SessionPayload = {
     email,
     name: sessionName,
