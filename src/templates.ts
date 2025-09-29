@@ -3,6 +3,27 @@
  * Maneja todo el renderizado HTML de forma segura
  */
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+// Cache para la versión de la aplicación
+let appVersion: string | null = null;
+
+function getAppVersion(): string {
+  if (!appVersion) {
+    try {
+      const packagePath = join(process.cwd(), "package.json");
+      const packageContent = readFileSync(packagePath, "utf8");
+      const packageData = JSON.parse(packageContent);
+      appVersion = packageData.version || "unknown";
+    } catch (error) {
+      console.error("Error leyendo versión del package.json:", error);
+      appVersion = "unknown";
+    }
+  }
+  return appVersion ?? "unknown";
+}
+
 export interface TemplateData {
   title?: string;
   user?: {
@@ -100,6 +121,19 @@ export function renderLayout(content: string, data: TemplateData = {}): string {
     <main class="container">
       ${content}
     </main>
+
+    <footer class="app-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-left">
+            <span>Creado por <a href="https://cundalf.com.ar" target="_blank" rel="noopener">Cundalf</a> para su Shunita hermosa ❤️</span>
+          </div>
+          <div class="footer-right">
+            <span class="version">v${getAppVersion()}</span>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <script src="/client.js"></script>
   </body>

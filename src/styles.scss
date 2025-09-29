@@ -943,3 +943,107 @@ button:disabled {
     color: color(neutral);
     font-style: italic;
 }
+
+// ===================================
+// Footer styles
+// ===================================
+
+.app-footer {
+    background: linear-gradient(135deg, color(neutral), #1a1a1a);
+    color: color(background);
+    padding: spacing(xl) 0;
+    margin-top: spacing(2xl);
+    border-top: 1px solid rgba(79, 163, 255, 0.1);
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 spacing(lg);
+    }
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: spacing(lg);
+
+    @include mobile-only {
+        flex-direction: column;
+        text-align: center;
+        gap: spacing(md);
+    }
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: spacing(sm);
+
+    span {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        gap: spacing(xs);
+    }
+
+    a {
+        color: color(accent) !important;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: all transition(normal);
+        position: relative;
+
+        &:hover {
+            color: #fff766 !important;
+            text-shadow: 0 0 8px rgba(255, 217, 61, 0.4);
+            transform: translateY(-1px);
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 50%;
+            background: color(accent);
+            transition: all transition(normal);
+            transform: translateX(-50%);
+        }
+
+        &:hover:after {
+            width: 100%;
+        }
+    }
+
+    @include mobile-only {
+        flex-direction: column;
+        gap: spacing(xs);
+    }
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+
+    .version {
+        background: rgba(79, 163, 255, 0.2);
+        color: color(primary);
+        padding: spacing(xs) spacing(sm);
+        border-radius: radius(full);
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid rgba(79, 163, 255, 0.3);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 8px rgba(79, 163, 255, 0.1);
+        transition: all transition(normal);
+
+        &:hover {
+            background: rgba(79, 163, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 163, 255, 0.2);
+        }
+    }
+}
