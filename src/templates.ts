@@ -89,36 +89,46 @@ export function renderLayout(content: string, data: TemplateData = {}): string {
     <link rel="stylesheet" href="/styles.css?v=${Date.now()}" />
   </head>
   <body>
-    <header class="hero${user ? ' logged-in' : ''}">
+    <header class="hero${user ? " logged-in" : ""}">
       <nav class="container-fluid">
         <ul>
           <li><strong>📚 KomiKAI</strong></li>
         </ul>
         <ul>
           <li class="tag-optional"><span class="tag">✨ Manhwa 📖 Manga ✨</span></li>
-          ${user ? `
-          <li class="tag-optional"><span class="tag">⏰ ${formatSessionTime(user.expiresIn)}</span></li>
+          ${
+            user
+              ? `
+          <li class="tag-optional"><span class="tag">⏰ ${formatSessionTime(
+            user.expiresIn
+          )}</span></li>
           <li>
             <form method="POST" action="/logout" style="display: inline;">
               <button type="submit" class="logout-btn">Salir</button>
             </form>
           </li>
-          ` : ''}
+          `
+              : ""
+          }
         </ul>
       </nav>
-      ${user ? `
+      ${
+        user
+          ? `
       <section class="container hero-content">
         <h1>¡Hola, ${user.name}! 👋</h1>
       </section>
-      ` : `
+      `
+          : `
       <section class="container hero-content">
         <h1>Traduce tus globos de diálogo al instante</h1>
         <p>🔐 Traducciones impulsadas por IA 🤖</p>
       </section>
-      `}
+      `
+      }
     </header>
 
-    <main class="container">
+    <main class="container${user ? " logged-in" : ""}">
       ${content}
     </main>
 

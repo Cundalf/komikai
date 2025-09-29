@@ -256,13 +256,25 @@ article a {
     }
 }
 
+main {
+    &.container.logged-in {
+        min-height: calc(100vh - 25vh - 6rem);
+    }
+
+    @include mobile-only {
+        &.container.logged-in {
+            min-height: calc(100vh - 20vh - 6rem);
+        }
+    }
+}
+
 // Hero section
 .hero {
     background: linear-gradient(135deg, rgba(79, 163, 255, 0.95), rgba(255, 143, 171, 0.9));
     color: color(background);
     padding-bottom: spacing(xl);
     position: relative;
-    min-height: 40vh;
+    height: 40vh;
     display: flex;
     flex-direction: column;
     padding-top: 0;
@@ -284,11 +296,11 @@ article a {
     }
 
     @include tablet-up {
-        min-height: 50vh;
+        height: 50vh;
     }
 
     @include mobile-only {
-        min-height: 30vh;
+        height: 30vh;
         padding-bottom: spacing(lg);
     }
 }
@@ -323,11 +335,11 @@ article a {
 
 // Hero section when user is logged in
 .hero.logged-in {
-    min-height: 25vh !important;
+    height: 25vh !important;
     padding-bottom: spacing(sm) !important;
 
     .hero-content {
-        min-height: auto !important;
+        height: auto !important;
         padding: spacing(sm) 0 !important;
         display: block !important;
 
@@ -340,11 +352,11 @@ article a {
     }
 
     @include tablet-up {
-        min-height: 25vh !important;
+        height: 25vh !important;
     }
 
     @include mobile-only {
-        min-height: 20vh !important;
+        height: 20vh !important;
         padding-bottom: spacing(xs) !important;
 
         .hero-content {
@@ -752,7 +764,8 @@ nav ul {
     display: inline-flex !important;
     align-items: center !important;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
         background: rgba(255, 80, 80, 1) !important;
         transform: translateY(-1px) !important;
         box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3) !important;
@@ -786,7 +799,7 @@ nav ul {
 button:disabled {
     cursor: not-allowed !important;
     opacity: 0.7 !important;
-    
+
     &:hover {
         transform: none !important;
         box-shadow: var(--shadow-sm) !important;
@@ -802,7 +815,7 @@ button:disabled {
 // Responsive navigation
 @include small-mobile {
     .hero {
-    
+
         &nav {
             gap: 0 !important;
             text-align: center;
@@ -944,15 +957,10 @@ button:disabled {
     font-style: italic;
 }
 
-// ===================================
-// Footer styles
-// ===================================
-
 .app-footer {
     background: linear-gradient(135deg, color(neutral), #1a1a1a);
     color: color(background);
     padding: spacing(xl) 0;
-    margin-top: spacing(2xl);
     border-top: 1px solid rgba(79, 163, 255, 0.1);
 
     .container {
