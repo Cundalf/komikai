@@ -4,30 +4,14 @@
  */
 
 import OpenAI from "openai";
-
-export interface TextElement {
-  id: number;
-  original: string;
-  english: string;
-  spanish: string;
-  type: 'dialogue' | 'thought' | 'narration' | 'title' | 'sound_effect' | 'onomatopoeia' | 'other';
-  location: string;
-  notes?: string;
-}
-
-export interface BubbleTranslation {
-  original: string;
-  english: string;
-  spanish: string;
-  language: 'japanese' | 'korean';
-}
-
-export interface ProcessImageResult {
-  language_detected: 'japanese' | 'korean';
-  total_elements: number;
-  text_elements: TextElement[];
-  bubbles: BubbleTranslation[];
-}
+import type {
+  TextElement,
+  BubbleTranslation,
+  ProcessImageResult,
+  RawParseResponse,
+  RawTextElement,
+  RawBubble
+} from '../types';
 
 export class AIService {
   private openai: OpenAI;
@@ -38,7 +22,7 @@ export class AIService {
     if (!apiKey) {
       throw new Error("OPENAI_API_KEY no está configurada");
     }
-    
+
     this.openai = new OpenAI({ apiKey });
     this.model = "o4-mini";
   }
@@ -105,15 +89,16 @@ export class AIService {
 
       const parsed = this.parseResponse(content);
       const validTextElements = this.validateAndFilterTextElements(parsed.text_elements || []);
-      const validBubbles = this.convertTextElementsToBubbles(validTextElements, parsed.language_detected || 'japanese');
+      const detectedLanguage = this.validateLanguage(parsed.language_detected || 'japanese');
+      const validBubbles = this.convertTextElementsToBubbles(validTextElements, detectedLanguage);
 
       return {
-        language_detected: parsed.language_detected || 'japanese',
+        language_detected: detectedLanguage,
         total_elements: parsed.total_elements || validTextElements.length,
         text_elements: validTextElements,
         bubbles: validBubbles
       };
-      
+
     } catch (error) {
       console.error("Error procesando imagen con IA:", error);
       throw new Error("Error procesando imagen con IA");
@@ -190,9 +175,9 @@ Instrucciones especiales que debes respetar:
   /**
    * Parsea la respuesta JSON de OpenAI
    */
-  private parseResponse(content: string): { language_detected?: 'japanese' | 'korean'; total_elements?: number; text_elements?: any[]; bubbles?: BubbleTranslation[] } {
+  private parseResponse(content: string): RawParseResponse {
     try {
-      return JSON.parse(content);
+      return JSON.parse(content) as RawParseResponse;
     } catch (error) {
       console.error("Error parseando respuesta JSON:", error);
       console.error("Contenido recibido:", content);
@@ -203,9 +188,9 @@ Instrucciones especiales que debes respetar:
   /**
    * Valida y filtra los elementos de texto para asegurar que tengan contenido válido
    */
-  private validateAndFilterTextElements(textElements: any[]): TextElement[] {
+  private validateAndFilterTextElements(textElements: RawTextElement[]): TextElement[] {
     return textElements
-      .filter((element): element is TextElement => {
+      .filter((element): element is RawTextElement => {
         return (
           typeof element === 'object' &&
           element !== null &&
@@ -225,10 +210,18 @@ Instrucciones especiales que debes respetar:
         original: element.original.trim(),
         english: element.english.trim(),
         spanish: element.spanish.trim(),
-        type: element.type as 'dialogue' | 'thought' | 'narration' | 'title' | 'sound_effect' | 'onomatopoeia' | 'other',
+        type: this.validateTextType(element.type),
         location: element.location.trim(),
         notes: element.notes ? element.notes.trim() : undefined
       }));
+  }
+
+  /**
+   * Valida el tipo de texto y proporciona un fallback
+   */
+  private validateTextType(type: string): TextElement['type'] {
+    const validTypes = ['dialogue', 'thought', 'narration', 'title', 'sound_effect', 'onomatopoeia', 'other'] as const;
+    return validTypes.includes(type as any) ? (type as TextElement['type']) : 'other';
   }
 
   /**
@@ -246,9 +239,9 @@ Instrucciones especiales que debes respetar:
   /**
    * Valida y filtra las burbujas para asegurar que tengan contenido válido
    */
-  private validateAndFilterBubbles(bubbles: any[]): BubbleTranslation[] {
+  private validateAndFilterBubbles(bubbles: RawBubble[]): BubbleTranslation[] {
     return bubbles
-      .filter((bubble): bubble is BubbleTranslation => {
+      .filter((bubble): bubble is RawBubble => {
         return (
           typeof bubble === 'object' &&
           bubble !== null &&
@@ -266,8 +259,15 @@ Instrucciones especiales que debes respetar:
         original: bubble.original.trim(),
         english: bubble.english.trim(),
         spanish: bubble.spanish.trim(),
-        language: bubble.language as 'japanese' | 'korean'
+        language: this.validateLanguage(bubble.language)
       }));
+  }
+
+  /**
+   * Valida el idioma y proporciona un fallback
+   */
+  private validateLanguage(language: string): 'japanese' | 'korean' {
+    return language === 'korean' ? 'korean' : 'japanese';
   }
 
   /**

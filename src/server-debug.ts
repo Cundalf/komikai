@@ -7,17 +7,17 @@ import { serve } from "bun";
 import { readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 
-// Importar servicios y middlewares de la nueva estructura
-import { aiService } from "./services/ai-service";
-import { authService } from "./services/auth.service";
-import { fileService } from "./services/file.service";
-import {
-  createAuthToken,
-  verifyAuthToken,
-  getSessionFromRequest
-} from "./middleware/auth.middleware";
-import { checkUserRateLimit } from "./middleware/ratelimit.middleware";
-import { getRateLimitInfo } from "./ratelimit";
+// Removiendo imports temporalmente para debug
+// import { aiService } from "./services/ai-service";
+// import { authService } from "./services/auth.service";
+// import { fileService } from "./services/file.service";
+// import {
+//   createAuthToken,
+//   verifyAuthToken,
+//   getSessionFromRequest
+// } from "./middleware/auth.middleware";
+// import { checkUserRateLimit } from "./middleware/ratelimit.middleware";
+// import { getRateLimitInfo } from "./ratelimit";
 
 // Importar templates modularizados
 import {
@@ -386,10 +386,21 @@ async function handleResult(request: Request, session: any): Promise<Response> {
   });
 }
 
-// Iniciar servidor
+// Iniciar servidor debug
 const server = serve({
-  port: parseInt(Bun.env.PORT || "3000"),
-  fetch: handleRequest,
+  port: 3006,
+  fetch(request) {
+    const url = new URL(request.url);
+    console.log(`${request.method} - ${url.pathname}`);
+
+    if (url.pathname === "/") {
+      return new Response(renderLogin(), {
+        headers: { "Content-Type": "text/html" }
+      });
+    }
+
+    return new Response("Not Found", { status: 404 });
+  },
 });
 
 console.log(`🚀 KomiKAI servidor iniciado en puerto ${server.port}`);
