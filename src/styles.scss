@@ -910,6 +910,7 @@ button:disabled {
         align-items: center;
         gap: spacing(sm);
         flex: 1;
+        white-space: nowrap;
     }
 
     @include mobile-only {
@@ -930,11 +931,6 @@ button:disabled {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
-
-    @include mobile-only {
-        max-width: 100%;
-    }
 }
 
 .element-notes {
