@@ -49,36 +49,57 @@ export class AIService {
   async processImage(imageBuffer: ArrayBuffer, userEmail?: string): Promise<ProcessImageResult> {
     const base64Image = Buffer.from(imageBuffer).toString("base64");
     const prompt = this.buildPrompt();
-    
+
     try {
-      
-      const response = await this.openai.chat.completions.create({
+
+      const response = await this.openai.responses.create({
         model: this.model,
-        messages: [
+        input: [
           {
             role: "user",
             content: [
-              { type: "text", text: prompt },
+              { type: "input_text", text: prompt },
               {
-                type: "image_url",
-                image_url: {
-                  url: `data:image/jpeg;base64,${base64Image}`,
-                },
+                type: "input_image",
+                image_url: `data:image/jpeg;base64,${base64Image}`,
+                detail: "high"
               },
             ],
           },
         ],
-        response_format: { type: "json_object" },
+        text: {
+          format: {
+            type: "json_object"
+          }
+        },
+        reasoning: {
+          effort: "low"
+        }
       });
 
       // Log simple de tokens
       const usage = response.usage;
       if (usage) {
-        console.log(`🤖 [${userEmail || 'Unknown'}] Tokens: ${usage.prompt_tokens} input + ${usage.completion_tokens} output = ${usage.total_tokens} total`);
+        console.log(`🤖 [${userEmail || 'Unknown'}] Tokens: ${usage.input_tokens} input + ${usage.output_tokens} output = ${usage.total_tokens} total`);
       }
 
-      const content = response.choices[0]?.message?.content;
+      // Extract content from the response output
+      // The response can have multiple output items (reasoning, message, etc.)
+      // We need to find the message type output
+      let content: string | undefined;
+
+      for (const outputItem of response.output || []) {
+        if (outputItem.type === 'message') {
+          const messageContent = outputItem.content?.[0];
+          if (messageContent && messageContent.type === 'output_text') {
+            content = messageContent.text;
+            break;
+          }
+        }
+      }
+
       if (!content) {
+        console.error("Could not extract content from response output items:", response.output);
         throw new Error("Respuesta vacía de OpenAI");
       }
 
@@ -158,8 +179,7 @@ Instrucciones especiales que debes respetar:
 - Si una burbuja tiene diseño especial (color, forma), mencionarlo en "location".
 - Si no estás seguro del idioma, hacer tu mejor estimación basándote en los caracteres.
 - Si no se encuentra texto, devolver array vacío pero mantener la estructura JSON.
-- Incluir TODOS los elementos de texto, sin importar su tamaño o ubicación.
-- No incluir textos los textos de créditos de autor o editorial sin importar en que idioma estén, por ejemplo: "CC", "This comic strip is licensed under CC", "Illustrated by", "Art by", etc.
+- Incluir TODOS los elementos de texto, sin importar su tamaño o ubicación excluyendo los textos de créditos de autor o editorial sin importar en que idioma estén, por ejemplo: "CC", "This comic strip is licensed under CC", "Illustrated by", "Art by", etc.
 - No generas traducciones de traducciones cuando el texto son solo caracteres especiales o cualquier onomatopeya, por ejemplo: "?", "!", "!!", "¿?".
 - Ignora los números de pagina.
 - NO traduzcas cosas de otros idiomas que no sean Japonés o Coreano.
