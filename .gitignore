@@ -50,6 +50,7 @@ data
 *.swp
 *.swo
 .cursor
+.claude
 
 # OS files
 .DS_Store
